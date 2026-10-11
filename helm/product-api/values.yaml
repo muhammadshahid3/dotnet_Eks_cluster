@@ -1,0 +1,44 @@
+replicaCount: 2
+
+image:
+  repository: shahiddevops1/productapi-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+containerPort: 8080
+
+# RDS connection string is injected from this Kubernetes Secret.
+# Terraform already creates it (name: rds-conn, key: connection-string)
+# in the "product" namespace.
+secret:
+  name: rds-conn
+  key: connection-string
+  # Env var name the .NET app reads (ConnectionStrings:DefaultConnection)
+  envName: ConnectionStrings__DefaultConnection
+
+service:
+  type: LoadBalancer   # ClusterIP agar sirf cluster ke andar chahiye
+  port: 80
+  # AWS Network Load Balancer, internet-facing (public subnets mein banta hai)
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # Sirf VPC ke andar chahiye to scheme "internal" kar do
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  path: /
+  initialDelaySeconds: 15
+  periodSeconds: 10
+
+# Extra plain env vars (non-secret)
+env:
+  ASPNETCORE_ENVIRONMENT: Production

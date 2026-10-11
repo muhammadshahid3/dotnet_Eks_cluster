@@ -1,0 +1,4 @@
+Load balancer URL (2-3 minute baad ready hota hai):
+
+  kubectl get svc {{ include "product-api.fullname" . }} -n {{ .Release.Namespace }} \
+    -o jsonpath='http://{.status.loadBalancer.ingress[0].hostname}{"\n"}'
