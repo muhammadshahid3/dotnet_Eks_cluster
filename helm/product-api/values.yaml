@@ -3,8 +3,7 @@ replicaCount: 2
 image:
   repository: shahiddevops1/productapi-api
   tag: version2
-  pullPolicy: IfNotPresent
-
+  pullPolicy: Always
 containerPort: 8080
 
 # RDS connection string is injected from this Kubernetes Secret.
